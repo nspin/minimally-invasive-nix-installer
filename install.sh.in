@@ -1,0 +1,68 @@
+{ # Prevent execution if this script was only partially downloaded
+
+set -e
+
+dest=/nix
+tarball_name=@tarball_name@
+expected_sha256=@expected_sha256@
+env_store_path=@env_store_path@
+
+log() {
+    echo "$0:" "$@" >&2
+}
+
+die() {
+    log "FAILURE: $1"
+    exit 1
+}
+
+if [ -z "$USER" ]; then
+    die "\$USER is not set."
+fi
+
+require_util() {
+    type "$1" > /dev/null 2>&1 || command -v "$1" > /dev/null 2>&1 || \
+        die "You do not have '$1' installed, which is necessary to $2."
+}
+
+require_util sha256sum "verify the integrity of the binary tarball"
+require_util tar "unpack the binary tarball"
+require_util sudo "create $dest"
+
+tarball="$(dirname $0)/$tarball_name"
+
+log "Verifying the integrity of '$tarball'..."
+actual_sha256="$(sha256sum "$tarball" | cut -c 1-64)"
+if [ "$expected_sha256" != "$actual_sha256" ]; then
+    die "SHA-256 hash mismatch in '$tarball': expected $expected_sha256, got $actual_sha256."
+fi
+
+cmd="mkdir -m 0755 $dest && chown $USER $dest"
+log "Creating '$dest' by running '$cmd' using sudo..."
+sudo sh -c "$cmd"
+
+log "Unpacking '$tarball' into '$dest'..."
+tar -xz -f $tarball -C $dest --strip 1
+chmod u+w $dest/store
+
+log "Initializing Nix database..."
+$env_store_path/bin/nix-store --init
+$env_store_path/bin/nix-store --load-db < $dest/reginfo
+rm -f $dest/reginfo
+
+log "Establishing Nix environment..."
+$env_store_path/bin/nix-store --realise --add-root $dest/env --indirect $env_store_path > /dev/null
+
+log
+log "SUCCESS"
+log
+log "To uninstall, simply 'rm -r /nix'."
+log "You may want to create '/etc/nix/nix.conf'."
+log "Add the following to your shell init:"
+log
+log "   export PATH=\"$dest/env/bin:\$PATH\""
+log "   export MANPATH=\"$dest/env/share/man:\$MANPATH\""
+log "   export NIX_SSL_CERT_FILE=$dest/env/etc/ssl/certs/ca-bundle.crt # or your favorite cert bundle"
+log
+
+}

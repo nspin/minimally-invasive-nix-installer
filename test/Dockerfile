@@ -1,0 +1,17 @@
+FROM debian:stretch
+
+RUN apt-get update && apt-get -y upgrade && apt-get install -y sudo man
+
+RUN useradd x && echo 'x ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER x
+ENV USER x
+
+COPY . ./
+
+RUN sh install.sh
+
+ENV PATH "/nix/env/bin:${PATH}"
+ENV MANPATH "/nix/env/share/man:${MANPATH}"
+ENV NIX_SSL_CERT_FILE /nix/env/etc/ssl/certs/ca-bundle.crt
+
+CMD nix --version && nix-store -q --tree $(realpath $(which nix)) | cat && nix-store --gc --print-roots
