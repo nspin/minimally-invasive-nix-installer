@@ -1,6 +1,6 @@
 let
-  pkgs = import ../nixpkgs {};
-  release = import ../release.nix {};
+  pkgs = import ../../nixpkgs {};
+  release = import ../../release.nix {};
 
   tarball_name = "x.tar.gz";
   tarball_url = "http://localhost:8000/${tarball_name}";

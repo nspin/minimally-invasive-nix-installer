@@ -7,13 +7,13 @@ let
   inherit (pkgs) nix cacert buildEnv runCommand linkFarm;
 
   env = buildEnv {
-    name = "mini-nix-env-${nix.version}";
+    name = "min-nix-env-${nix.version}";
     paths = [ nix cacert ];
   };
 
   closure = pkgs.closureInfo { rootPaths = [ env ]; };
 
-  archive_name = "mini-nix-${nix.version}";
+  archive_name = "min-nix-${nix.version}";
   tarball_name = "${archive_name}.tar.gz";
   script_name = "install.sh";
 

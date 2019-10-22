@@ -1,10 +1,9 @@
 set -e
 
-(cd /www && python3 -m http.server --bind localhost) &
-sleep 3
+url=https://raw.githubusercontent.com/nspin/minimally-invasive-nix-installer/dist/install.sh
 
 sudo install -d -m 0755 -o 1000 /nix
-curl http://localhost:8000/install.sh | bash
+curl $url | bash
 
 export PATH="/nix/env/bin:${PATH}"
 export MANPATH="/nix/env/share/man:${MANPATH}"
