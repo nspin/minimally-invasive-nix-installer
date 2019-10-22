@@ -1,6 +1,6 @@
 FROM debian:stretch
 
-RUN apt-get update && apt-get -y upgrade && apt-get install -y sudo man
+RUN apt-get update && apt-get -y upgrade && apt-get install -y sudo man wget
 
 RUN useradd x && echo 'x ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER x
@@ -8,7 +8,8 @@ ENV USER x
 
 COPY . ./
 
-RUN sh install.sh
+RUN sudo install -d -m 0755 -o 1000 /nix
+RUN bash install.sh
 
 ENV PATH "/nix/env/bin:${PATH}"
 ENV MANPATH "/nix/env/share/man:${MANPATH}"

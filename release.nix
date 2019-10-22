@@ -34,6 +34,6 @@ runCommand name {} ''
 
   substitute ${./install.sh.in} $out/install.sh \
     --subst-var-by tarball_name $tarball_name \
-    --subst-var-by expected_sha256 "$(sha256sum $tarball_path | cut -c 1-64)" \
+    --subst-var-by tarball_sha256 "$(sha256sum $tarball_path | cut -c 1-64)" \
     --subst-var-by env_store_path ${env}
 ''
