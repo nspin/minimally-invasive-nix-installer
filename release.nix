@@ -6,7 +6,9 @@ let
 
   inherit (pkgs) nix cacert buildEnv runCommand;
 
-  name = "mini-nix-${nix.version}";
+  archive_name = "mini-nix-${nix.version}";
+  tarball_name = "${archive_name}.tar.gz";
+  script_name = "install.sh";
 
   env = buildEnv {
     name = "mini-nix-env-${nix.version}";
@@ -15,25 +17,29 @@ let
 
   closure = pkgs.closureInfo { rootPaths = [ env ]; };
 
+  tarball = runCommand tarball_name {} ''
+    dir=${archive_name}
+    reginfo=${closure}/registration
+
+    tar -czv -f $out \
+      --owner=0 --group=0 \
+      --absolute-names \
+      --hard-dereference \
+      --transform "s,$reginfo,$dir/reginfo," \
+      --transform "s,$NIX_STORE,$dir/store,S" \
+      $reginfo $(cat ${closure}/store-paths)
+  '';
+
+  script = runCommand script_name {} ''
+    substitute ${./install.sh.in} $out \
+      --subst-var-by tarball_name ${archive_name} \
+      --subst-var-by tarball_sha256 "$(sha256sum ${tarball} | cut -c 1-64)" \
+      --subst-var-by env_store_path ${env}
+  '';
+
 in
-runCommand name {} ''
-  dir=${name}
-  tarball_name=$dir.tar.gz
-  tarball_path=$out/$tarball_name
-  reginfo=${closure}/registration
-
+runCommand "bundle" {} ''
   mkdir $out
-
-  tar -czv -f $tarball_path \
-    --owner=0 --group=0 \
-    --absolute-names \
-    --hard-dereference \
-    --transform "s,$reginfo,$dir/reginfo," \
-    --transform "s,$NIX_STORE,$dir/store,S" \
-    $reginfo $(cat ${closure}/store-paths)
-
-  substitute ${./install.sh.in} $out/install.sh \
-    --subst-var-by tarball_name $tarball_name \
-    --subst-var-by tarball_sha256 "$(sha256sum $tarball_path | cut -c 1-64)" \
-    --subst-var-by env_store_path ${env}
+  cp ${tarball} $out/${archive_name}
+  cp ${script} $out/${script_name}
 ''
