@@ -17,6 +17,10 @@ let
 
   closure = pkgs.closureInfo { rootPaths = [ env ]; };
 
+  tarball_url = "http://localhost:8000/${tarball_name}";
+
+in rec {
+
   tarball = runCommand tarball_name {} ''
     dir=${archive_name}
     reginfo=${closure}/registration
@@ -30,16 +34,22 @@ let
       $reginfo $(cat ${closure}/store-paths)
   '';
 
-  script = runCommand script_name {} ''
+  mk_script = { tarball_url }: runCommand script_name {} ''
     substitute ${./install.sh.in} $out \
-      --subst-var-by tarball_name ${archive_name} \
+      --subst-var-by tarball_url ${tarball_url} \
       --subst-var-by tarball_sha256 "$(sha256sum ${tarball} | cut -c 1-64)" \
+      --subst-var-by archive_name ${archive_name} \
       --subst-var-by env_store_path ${env}
   '';
 
-in
-runCommand "bundle" {} ''
-  mkdir $out
-  cp ${tarball} $out/${archive_name}
-  cp ${script} $out/${script_name}
-''
+  script = mk_script {
+    inherit tarball_url;
+  };
+
+  bundle = runCommand "bundle" {} ''
+    mkdir $out
+    cp ${tarball} $out/${tarball_name}
+    cp ${script} $out/${script_name}
+  '';
+
+}

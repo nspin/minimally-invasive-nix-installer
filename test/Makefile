@@ -1,7 +1,7 @@
 .PHONY: all build run
 
 tag := mini-nix-test
-store_path = $(shell nix-build ../release.nix --no-out-link)
+store_path = $(shell nix-build ../release.nix -A bundle --no-out-link)
 
 all: run
 

@@ -1,15 +1,14 @@
 FROM debian:stretch
 
-RUN apt-get update && apt-get -y upgrade && apt-get install -y sudo man wget
+RUN apt-get update && apt-get -y upgrade && apt-get install -y sudo man curl python3
 
 RUN useradd x && echo 'x ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 USER x
-ENV USER x
 
-COPY . ./
+COPY . ./www
 
 RUN sudo install -d -m 0755 -o 1000 /nix
-RUN bash install.sh
+RUN (cd /www && python3 -m http.server --bind localhost) & sleep 3 && curl http://localhost:8000/install.sh | bash
 
 ENV PATH "/nix/env/bin:${PATH}"
 ENV MANPATH "/nix/env/share/man:${MANPATH}"

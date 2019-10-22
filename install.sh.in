@@ -3,8 +3,9 @@
 set -Eeuo pipefail
 
 dest=/nix
-tarball_name=@tarball_name@
+tarball_url=@tarball_url@
 tarball_sha256=@tarball_sha256@
+archive_name=@archive_name@
 env_store_path=@env_store_path@
 
 log() {
@@ -44,20 +45,24 @@ check_dest() {
 
 check_dest
 
-require_util wget
+require_util date
+require_util curl
 require_util sha256sum
 require_util tar
 
-tarball="$(dirname $0)/$tarball_name"
+tarball_path="${TMPDIR:-/tmp}/$archive_name-$(date +%s).tar.gz"
+log "Fetching '$tarball_url' to '$tarball_path'..."
+trap "{ rm -f $tarball_path; }" EXIT
+curl -fL -o "$tarball_path" "$tarball_url"
 
-log "Verifying the integrity of '$tarball'..."
-observed_sha256="$(sha256sum "$tarball" | cut -c 1-64)"
+log "Verifying the integrity of '$tarball_path'..."
+observed_sha256="$(sha256sum "$tarball_path" | cut -c 1-64)"
 if [ "$tarball_sha256" != "$observed_sha256" ]; then
-    die "SHA-256 hash mismatch in '$tarball': expected $tarball_sha256, got $observed_sha256."
+    die "SHA-256 hash mismatch for '$tarball_path': expected $tarball_sha256, got $observed_sha256."
 fi
 
-log "Unpacking '$tarball' into '$dest'..."
-tar -xz -f $tarball -C $dest --strip 1
+log "Unpacking '$tarball_path' into '$dest'..."
+tar -xz -f $tarball_path -C $dest --strip 1
 chmod u+w $dest/store
 
 log "Initializing Nix database..."
