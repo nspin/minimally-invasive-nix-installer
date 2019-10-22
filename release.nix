@@ -4,11 +4,7 @@ assert builtins.storeDir == "/nix/store";
 
 let
 
-  inherit (pkgs) nix cacert buildEnv runCommand;
-
-  archive_name = "mini-nix-${nix.version}";
-  tarball_name = "${archive_name}.tar.gz";
-  script_name = "install.sh";
+  inherit (pkgs) nix cacert buildEnv runCommand linkFarm;
 
   env = buildEnv {
     name = "mini-nix-env-${nix.version}";
@@ -17,7 +13,11 @@ let
 
   closure = pkgs.closureInfo { rootPaths = [ env ]; };
 
-  tarball_url = "http://localhost:8000/${tarball_name}";
+  archive_name = "mini-nix-${nix.version}";
+  tarball_name = "${archive_name}.tar.gz";
+  script_name = "install.sh";
+
+  tarball_url = "https://raw.githubusercontent.com/nspin/minimally-invasive-nix-installer/dist/${tarball_name}";
 
 in rec {
 
@@ -46,10 +46,9 @@ in rec {
     inherit tarball_url;
   };
 
-  bundle = runCommand "bundle" {} ''
-    mkdir $out
-    cp ${tarball} $out/${tarball_name}
-    cp ${script} $out/${script_name}
-  '';
+  links = linkFarm "links" [
+    { name = tarball_name; path = tarball; }
+    { name = script_name; path = script; }
+  ];
 
 }
