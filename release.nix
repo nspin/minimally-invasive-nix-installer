@@ -37,7 +37,7 @@ in rec {
   mkScript = { tarballUrl }: runCommand scriptName {} ''
     substitute ${./install.sh.in} $out \
       --subst-var-by tarball_url ${tarballUrl} \
-      --subst-var-by tarball_sha256 "$(sha256sum ${tarball} | cut -c 1-64)" \
+      --subst-var-by tarball_sha256 "$(sha256sum ${tarball} | cut -d ' ' -f 1)" \
       --subst-var-by archive_name ${archiveName} \
       --subst-var-by env_store_path ${env}
   '';
