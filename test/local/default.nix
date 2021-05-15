@@ -2,20 +2,20 @@ let
   pkgs = import ../../nixpkgs {};
   release = import ../../release.nix {};
 
-  tarball_name = "x.tar.gz";
-  tarball_url = "http://localhost:8000/${tarball_name}";
+  tarballName = "x.tar.gz";
+  tarballUrl = "http://localhost:8000/${tarballName}";
 
-  script_name = "install.sh";
-  script = release.mk_script {
-    inherit tarball_url;
+  scriptName = "install.sh";
+  script = release.mkScript {
+    inherit tarballUrl;
   };
 
 in {
 
-  test_bundle = pkgs.runCommand "test_bundle" {} ''
+  testBundle = pkgs.runCommand "test_bundle" {} ''
     mkdir $out
-    cp ${release.tarball} $out/${tarball_name}
-    cp ${script} $out/${script_name}
+    cp ${release.tarball} $out/${tarballName}
+    cp ${script} $out/${scriptName}
   '';
 
 }

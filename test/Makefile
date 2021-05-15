@@ -4,7 +4,7 @@ base_tag := mini-nix-test
 local_tag := $(base_tag)-local
 remote_tag := $(base_tag)-remote
 
-store_path = $(shell nix-build local --no-out-link)
+store_path = $(shell nix-build local --no-out-link -A testBundle)
 
 all: local-run
 
