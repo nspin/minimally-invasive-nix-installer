@@ -3,10 +3,10 @@
 set -Eeuo pipefail
 
 dest=/nix
-tarball_url=https://raw.githubusercontent.com/nspin/minimally-invasive-nix-installer/dist/min-nix-2.3.11.tar.gz
-tarball_sha256=862f7be30bc173e02a18d4dcab9e665686874270ea8da2ca1d61f3ea8682c745
-archive_name=min-nix-2.3.11
-env_store_path=/nix/store/0s052vdkzpiw5grs8qqvm6qgff0ch3qq-min-nix-env-2.3.11
+tarball_url=https://raw.githubusercontent.com/nspin/minimally-invasive-nix-installer/dist/min-nix-2.4pre20210503_6d2553a.tar.gz
+tarball_sha256=c34f4d608ef6ded52c0d917fd13f5416f38d7a01c176443291d5cef2b51e9725
+archive_name=min-nix-2.4pre20210503_6d2553a
+env_store_path=/nix/store/s34alcxcjjd7ggz0vjvxm9ax488685m4-min-nix-env-2.4pre20210503_6d2553a
 
 log() {
     echo "$0:" "$@" >&2
