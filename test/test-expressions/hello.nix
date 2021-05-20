@@ -16,5 +16,9 @@ stdenv.mkDerivation rec {
 
   doCheck = true;
 
-  fresh = "";
+  featureTest = builtins.fetchGit {
+    url = "https://github.com/nspin/seL4.git";
+    rev = "13d1a9963b8a1e135c0dad7b2020851797e8e34f";
+    submodules = true;
+  };
 }

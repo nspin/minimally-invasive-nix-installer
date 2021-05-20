@@ -4,7 +4,9 @@ assert builtins.storeDir == "/nix/store";
 
 let
 
-  inherit (pkgs) nix cacert buildEnv runCommand linkFarm;
+  inherit (pkgs) nixUnstable cacert buildEnv runCommand linkFarm;
+
+  nix = nixUnstable;
 
   env = buildEnv {
     name = "min-nix-env-${nix.version}";
