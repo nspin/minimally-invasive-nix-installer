@@ -6,7 +6,7 @@ This Nix installer has no side-effects other than populating `/nix`, which must 
 
 ```sh
 sudo install -d -m 0755 -o $USER /nix
-curl https://raw.githubusercontent.com/nspin/minimally-invasive-nix-installer/dist/install.sh | bash
+curl -L https://github.com/nspin/minimally-invasive-nix-installer/raw/master/dist/install.sh | bash
 ```
 
 Next, add the following (or similar) to your shell initialization:
@@ -19,4 +19,4 @@ export NIX_SSL_CERT_FILE=/nix/env/etc/ssl/certs/ca-bundle.crt # or your favorite
 
 You may want to create `/etc/nix/nix.conf`.
 
-To uninstall, simply `rm -r /nix`.
+To uninstall, simply `chmod -R u+w /nix && rm -r /nix`.
