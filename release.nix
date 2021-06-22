@@ -47,7 +47,7 @@ let
   tarballName = "${archiveName}.tar.gz";
 
   tag = "dist-${lib.substring 0 10 (lib.removePrefix "${builtins.storeDir}/" scriptTemplate.outPath)}";
-  tarballUrl = "https://raw.githubusercontent.com/nspin/minimally-invasive-nix-installer/${tag}/${tarballName}";
+  tarballUrl = "https://github.com/nspin/minimally-invasive-nix-installer/raw/${tag}/dist/${tarballName}";
 
   script = mkScript {
     inherit tarballUrl;
