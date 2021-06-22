@@ -3,9 +3,9 @@ get_tag := $$(cat dist/TAG)
 
 .PHONY:
 copy:
-	store_path=$$(nix-build release.nix -A links)
-	rm -rf dist
-	cp -L $$store_path dist
+	store_path=$$(nix-build release.nix -A links) \
+		&& rm -rf dist \
+		&& cp -rL $$store_path dist
 
 .PHONY:
 deploy:
