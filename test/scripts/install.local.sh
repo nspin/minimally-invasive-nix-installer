@@ -6,4 +6,4 @@ url=http://localhost:8000/install.sh
 sleep 3
 
 sudo install -d -m 0755 -o 1000 /nix
-curl $url | bash
+curl -L $url | bash

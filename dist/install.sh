@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 dest=/nix
-tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-l6psw50qxj/dist/min-nix-2.4pre20210503_6d2553a.tar.gz
+tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-11p9fcf3ca/dist/min-nix-2.4pre20210503_6d2553a.tar.gz
 tarball_sha256=476b51bf54d2e0708bfc31b3019aeae9fd869475fcd8441407f3359eea89a364
 archive_name=min-nix-2.4pre20210503_6d2553a
 env_store_path=/nix/store/s34alcxcjjd7ggz0vjvxm9ax488685m4-min-nix-env-2.4pre20210503_6d2553a
@@ -76,7 +76,7 @@ $env_store_path/bin/nix-store --realise --add-root $dest/env --indirect $env_sto
 log
 log "SUCCESS"
 log
-log "To uninstall, simply 'chmod -R u+w /nix && rm -r /nix'."
+log "To uninstall, simply remove '/nix'."
 log "You may want to create '/etc/nix/nix.conf'."
 log "Add the following to your shell init:"
 log

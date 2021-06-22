@@ -62,5 +62,6 @@ let
 in rec {
 
   inherit nix env tarball script links;
+  inherit mkScript;
 
 }
