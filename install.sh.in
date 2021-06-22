@@ -62,7 +62,7 @@ if [ "$tarball_sha256" != "$observed_sha256" ]; then
 fi
 
 log "Unpacking '$tarball_path' into '$dest'..."
-tar -xz -f $tarball_path -C $dest --strip 1
+tar -xz -f $tarball_path -C $dest --strip 1 --delay-directory-restore
 chmod u+w $dest/store
 
 log "Initializing Nix database..."

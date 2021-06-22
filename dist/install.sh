@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 dest=/nix
-tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-mxhf5f3nr6/dist/min-nix-2.4pre20210503_6d2553a.tar.gz
+tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-56y6qwivf2/dist/min-nix-2.4pre20210503_6d2553a.tar.gz
 tarball_sha256=476b51bf54d2e0708bfc31b3019aeae9fd869475fcd8441407f3359eea89a364
 archive_name=min-nix-2.4pre20210503_6d2553a
 env_store_path=/nix/store/s34alcxcjjd7ggz0vjvxm9ax488685m4-min-nix-env-2.4pre20210503_6d2553a
@@ -62,7 +62,7 @@ if [ "$tarball_sha256" != "$observed_sha256" ]; then
 fi
 
 log "Unpacking '$tarball_path' into '$dest'..."
-tar -xz -f $tarball_path -C $dest --strip 1
+tar -xz -f $tarball_path -C $dest --strip 1 --delay-directory-restore
 chmod u+w $dest/store
 
 log "Initializing Nix database..."
