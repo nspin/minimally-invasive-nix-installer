@@ -5,7 +5,7 @@ get_tag := $$(cat dist/TAG)
 copy:
 	store_path=$$(nix-build release.nix -A links) \
 		&& rm -rf dist \
-		&& cp -rL $$store_path dist
+		&& cp -rL --no-preserve=mode $$store_path dist
 
 .PHONY:
 deploy:
