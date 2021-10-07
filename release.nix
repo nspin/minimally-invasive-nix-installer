@@ -71,9 +71,8 @@ let
     let
       byPlatform = lib.flip lib.mapAttrs platforms (_: pkgs: mkInstaller { inherit pkgs mkTarballUrl; });
 
-      representativeContent = writeText "for-hash" (
-        toString (lib.mapAttrsToList (_: installer: installer.scriptTemplate) byPlatform)
-      );
+      representativeContent = writeText "for-hash"
+        (toString (lib.mapAttrsToList (_: installer: installer.scriptTemplate) byPlatform));
 
       representativeHash = lib.substring 0 10
         (lib.removePrefix "${builtins.storeDir}/" representativeContent.outPath);
