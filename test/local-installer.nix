@@ -1,21 +1,15 @@
 let
   pkgs = import ../nixpkgs {};
-  release = import ../release.nix {};
+  release = import ../release.nix;
 
-  tarballName = "x.tar.gz";
-  tarballUrl = "http://localhost:8000/${tarballName}";
-
-  scriptName = "install.sh";
-  script = release.mkScript {
-    inherit tarballUrl;
+  installers = release.mkInstallers {
+    mkTarballUrl = tarballName: "http://localhost:8000/${tarballName}";
   };
 
 in {
 
-  testBundle = pkgs.runCommand "test_bundle" {} ''
-    mkdir $out
-    cp ${release.tarball} $out/${tarballName}
-    cp ${script} $out/${scriptName}
+  testBundle = pkgs.runCommand "test-bundle" {} ''
+    cp -rL ${installers.links} $out
   '';
 
 }

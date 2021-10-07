@@ -2,7 +2,7 @@ assert builtins.storeDir == "/nix/store";
 
 let
 
-  mk = { pkgs, tag }:
+  mkInstaller = { pkgs, mkTarballUrl }:
 
     let
       inherit (pkgs) hostPlatform nixUnstable cacert buildEnv runCommand;
@@ -36,7 +36,7 @@ let
 
       tarballName = "${archiveName}.tar.gz";
 
-      tarballUrl = "https://github.com/nspin/minimally-invasive-nix-installer/raw/${tag}/dist/${tarballName}";
+      tarballUrl = mkTarballUrl tarballName;
 
       scriptTemplate = runCommand scriptName {} ''
         substitute ${./install.sh.in} $out \
@@ -62,27 +62,41 @@ let
 
   inherit (pkgs) lib writeText linkFarm;
 
-  platforms = lib.mapAttrs (_: pkgs: mk { inherit pkgs tag; }) {
+  platforms = {
     x86_64 = pkgs;
     aarch64 = pkgs.pkgsCross.aarch64-multiplatform;
   };
 
-  representativeContent = writeText "for-hash" (
-    toString (lib.mapAttrsToList (_: installer: installer.scriptTemplate) platforms)
-  );
+  mkInstallers = { mkTarballUrl }:
+    let
+      byPlatform = lib.flip lib.mapAttrs platforms (_: pkgs: mkInstaller { inherit pkgs mkTarballUrl; });
 
-  representativeHash = lib.substring 0 10
-    (lib.removePrefix "${builtins.storeDir}/" representativeContent.outPath);
+      representativeContent = writeText "for-hash" (
+        toString (lib.mapAttrsToList (_: installer: installer.scriptTemplate) byPlatform)
+      );
 
-  tag = "dist-${representativeHash}";
+      representativeHash = lib.substring 0 10
+        (lib.removePrefix "${builtins.storeDir}/" representativeContent.outPath);
 
-  links = linkFarm "links" ([
-    { name = "TAG"; path = writeText "TAG" tag; }
-  ] ++ lib.concatLists ((lib.flip lib.mapAttrsToList platforms (_: installer: with installer; [
-    { name = scriptName; path = script; }
-    { name = tarballName; path = tarball; }
-  ]))));
+    in {
+      inherit byPlatform representativeHash;
+      
+      links = linkFarm "links" ([
+        { name = "HASH"; path = writeText "HASH" representativeHash; }
+      ] ++ lib.concatLists ((lib.flip lib.mapAttrsToList byPlatform (_: installer: with installer; [
+        { name = scriptName; path = script; }
+        { name = tarballName; path = tarball; }
+      ]))));
+    };
+
+  installers = mkInstallers {
+    mkTarballUrl = tarballName:
+      let
+        tag = "dist-${installers.representativeHash}";
+      in
+        "https://github.com/nspin/minimally-invasive-nix-installer/raw/${tag}/dist/${tarballName}";
+  };
 
 in {
-  inherit links pkgs;
-} // platforms
+  inherit pkgs installers mkInstallers;
+}

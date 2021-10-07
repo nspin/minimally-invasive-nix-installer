@@ -1,5 +1,5 @@
 remote := origin
-tag := $(shell cat dist/TAG)
+tag := dist-$(shell cat dist/HASH)
 
 .PHONY: copy
 copy:
