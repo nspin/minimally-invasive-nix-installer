@@ -20,4 +20,4 @@ export NIX_SSL_CERT_FILE=/nix/env/etc/ssl/certs/ca-bundle.crt # or your favorite
 
 You may want to create `/etc/nix/nix.conf`.
 
-To uninstall, simply remove '/nix'.
+To uninstall, simply remove `/nix`.
