@@ -1,13 +1,12 @@
 remote := origin
-get_tag := $$(cat dist/TAG)
+tag := $(shell cat dist/TAG)
 
-.PHONY:
+.PHONY: copy
 copy:
-	store_path=$$(nix-build release.nix -A links) \
-		&& rm -rf dist \
-		&& cp -rL --no-preserve=mode $$store_path dist
+	rm -rf dist
+	cp -rL --no-preserve=mode $$(nix-build release.nix -A links) dist
 
-.PHONY:
+.PHONY: deploy
 deploy:
-	git tag $(get_tag)
-	git push $(remote) $(get_tag)
+	git tag $(tag)
+	git push $(remote) $(tag)
