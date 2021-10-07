@@ -63,8 +63,9 @@ let
   inherit (pkgs) lib writeText linkFarm;
 
   platforms = {
-    x86_64 = pkgs;
     aarch64 = pkgs.pkgsCross.aarch64-multiplatform;
+  } // {
+    ${pkgs.hostPlatform.parsed.cpu.name} = pkgs;
   };
 
   mkInstallers = { mkTarballUrl }:
