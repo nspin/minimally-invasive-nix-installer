@@ -45,12 +45,18 @@ let
           --subst-var-by env_store_path ${env}
       '';
 
+      scriptName = "install-${hostPlatform.system}.sh";
+
       script = runCommand scriptName {} ''
         substitute ${scriptTemplate} $out \
           --subst-var-by tarball_url ${tarballUrl}
       '';
 
-      scriptName = "install-${hostPlatform.system}.sh";
+      scriptSha256Name = "${scriptName}.sha256.txt";
+
+      scriptSha256 = runCommand scriptSha256Name {} ''
+        sha256sum ${script} | cut -d ' ' -f 1 > $out
+      '';
 
     };
 
@@ -72,7 +78,7 @@ let
     let
       byPlatform = lib.flip lib.mapAttrs platforms (_: pkgs: mkInstaller { inherit pkgs mkTarballUrl; });
 
-      representativeContent = writeText "for-hash"
+      representativeContent = writeText "representative-content"
         (toString (lib.mapAttrsToList (_: installer: installer.scriptTemplate) byPlatform));
 
       representativeHash = lib.substring 0 10
@@ -82,9 +88,10 @@ let
       inherit byPlatform representativeHash;
       
       links = linkFarm "links" ([
-        { name = "HASH"; path = writeText "HASH" representativeHash; }
+        { name = "VERSION"; path = writeText "VERSION" representativeHash; }
       ] ++ lib.concatLists ((lib.flip lib.mapAttrsToList byPlatform (_: installer: with installer; [
         { name = scriptName; path = script; }
+        { name = scriptSha256Name; path = scriptSha256; }
         { name = tarballName; path = tarball; }
       ]))));
     };
