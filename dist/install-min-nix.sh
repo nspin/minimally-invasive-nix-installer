@@ -31,10 +31,7 @@ case "$arch" in
     aarch64) script_sha256=919f6b0d762f9ca3bd6067a2cca3758649558a35181a196e5733ffaa6d75415f ;;
     x86_64) script_sha256=f111196d63ce84491faf964f4ca338ae6f41145599c2f79cba0403c0272751aa ;;
 
-    *)
-        echo >&2 "unsupported architecture: '$arch'"
-        exit 1
-        ;;
+    *) die "unsupported architecture: '$arch'" ;;
 esac
 
 script_path="${TMPDIR:-/tmp}/$(date +%s)-$script_name"

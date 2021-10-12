@@ -29,10 +29,7 @@ script_url="@script_url_expression@"
 
 case "$arch" in
     @case_arms@
-    *)
-        echo >&2 "unsupported architecture: '$arch'"
-        exit 1
-        ;;
+    *) die "unsupported architecture: '$arch'" ;;
 esac
 
 script_path="${TMPDIR:-/tmp}/$(date +%s)-$script_name"
