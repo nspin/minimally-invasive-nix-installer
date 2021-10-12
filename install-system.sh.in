@@ -2,12 +2,6 @@
 
 set -Eeuo pipefail
 
-dest=/nix
-tarball_url=@tarball_url@
-tarball_sha256=@tarball_sha256@
-archive_name=@archive_name@
-env_store_path=@env_store_path@
-
 log() {
     echo "$0:" "$@" >&2
 }
@@ -43,12 +37,19 @@ check_dest() {
     fi
 }
 
-check_dest
-
 require_util date
 require_util curl
 require_util sha256sum
 require_util tar
+
+tarball_url=@tarball_url@
+tarball_sha256=@tarball_sha256@
+archive_name=@archive_name@
+env_store_path=@env_store_path@
+
+dest=/nix
+
+check_dest
 
 tarball_path="${TMPDIR:-/tmp}/$archive_name-$(date +%s).tar.gz"
 log "Fetching '$tarball_url' to '$tarball_path'..."

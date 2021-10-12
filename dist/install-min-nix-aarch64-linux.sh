@@ -2,12 +2,6 @@
 
 set -Eeuo pipefail
 
-dest=/nix
-tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-69sdm5r2yf/dist/min-nix-2.4pre20210802_47e96bb-aarch64-linux.tar.gz
-tarball_sha256=30316b03d6c9d03ef7a6cb6a4a5d2237510d032e17335f25be0e781b92913b4c
-archive_name=min-nix-2.4pre20210802_47e96bb-aarch64-linux
-env_store_path=/nix/store/cjajkcaz3dgixvjzq44ba3ls0m7d8jvw-min-nix-env-2.4pre20210802_47e96bb
-
 log() {
     echo "$0:" "$@" >&2
 }
@@ -43,12 +37,19 @@ check_dest() {
     fi
 }
 
-check_dest
-
 require_util date
 require_util curl
 require_util sha256sum
 require_util tar
+
+tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-62j2x1q9zy/dist/min-nix-2.4pre20210802_47e96bb-aarch64-linux.tar.gz
+tarball_sha256=30316b03d6c9d03ef7a6cb6a4a5d2237510d032e17335f25be0e781b92913b4c
+archive_name=min-nix-2.4pre20210802_47e96bb-aarch64-linux
+env_store_path=/nix/store/cjajkcaz3dgixvjzq44ba3ls0m7d8jvw-min-nix-env-2.4pre20210802_47e96bb
+
+dest=/nix
+
+check_dest
 
 tarball_path="${TMPDIR:-/tmp}/$archive_name-$(date +%s).tar.gz"
 log "Fetching '$tarball_url' to '$tarball_path'..."

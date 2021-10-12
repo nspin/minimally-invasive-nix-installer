@@ -4,15 +4,15 @@ let
 
   sha256 = name: path:
     let
-      sha256Name = "${name}.sha256.txt";
+      fileName = "${name}.sha256.txt";
     in
-      pkgs.runCommand sha256Name {
-        passthru.fileName = sha256Name;
+      pkgs.runCommand fileName {
+        passthru = { inherit fileName; };
       } ''
         sha256sum ${path} | cut -d ' ' -f 1 > $out
       '';
 
-  mkScriptName = system: "install-${system}.sh";
+  mkScriptName = system: "install-min-nix-${system}.sh";
 
   mkInstaller = { thesePkgs, mkUrl }:
 
@@ -32,6 +32,8 @@ let
 
       archiveName = "min-nix-${nix.version}-${hostPlatform.system}";
 
+      tarballName = "${archiveName}.tar.gz";
+
       tarball = runCommand tarballName {} ''
         dir=${archiveName}
         reginfo=${closure}/registration
@@ -46,11 +48,9 @@ let
           $reginfo $(cat ${closure}/store-paths)
       '';
 
-      tarballName = "${archiveName}.tar.gz";
+      tarballSha256 = sha256 tarballName tarball;
 
       tarballUrl = mkUrl tarballName;
-
-      tarballSha256 = sha256 tarballName tarball;
 
       scriptTemplate = runCommand scriptName {} ''
         substitute ${./install-system.sh.in} $out \
@@ -92,7 +92,7 @@ let
       representativeHash = lib.substring 0 10
         (lib.removePrefix "${builtins.storeDir}/" representativeContent.outPath);
 
-      platformIndependentScriptName = "install.sh";
+      metaScriptName = "install-min-nix.sh";
 
       scriptNameExpression = mkScriptName "\${arch}-linux";
       scriptUrlExpression = mkUrl scriptNameExpression;
@@ -105,19 +105,22 @@ let
             ${arch}) script_sha256=$(cat ${installer.scriptSha256}) ;;
           ''));
 
-      platformIndependentScript = pkgs.runCommand platformIndependentScriptName {} ''
+      metaScript = pkgs.runCommand metaScriptName {} ''
         substitute ${./install.sh.in} $out \
           --subst-var-by script_name_expression '${scriptNameExpression}' \
           --subst-var-by script_url_expression '${scriptUrlExpression}' \
           --subst-var-by case_arms "${caseArms}"
       '';
 
+      metaScriptSha256 = sha256 metaScriptName metaScript;
+
     in {
       inherit byPlatform representativeHash;
       
       links = linkFarm "links" ([
         { name = "VERSION"; path = writeText "VERSION" representativeHash; }
-        { name = platformIndependentScriptName; path = platformIndependentScript; }
+        { name = metaScriptName; path = metaScript; }
+        { name = metaScriptSha256.fileName; path = metaScriptSha256; }
       ] ++ lib.concatLists (lib.flip lib.mapAttrsToList byPlatform (_: installer: with installer; [
         { name = scriptName; path = script; }
         { name = scriptSha256.fileName; path = scriptSha256; }
@@ -127,11 +130,11 @@ let
     };
 
   installers = mkInstallers {
-    mkUrl = name:
+    mkUrl = fileName:
       let
         tag = "dist-${installers.representativeHash}";
       in
-        "https://github.com/nspin/minimally-invasive-nix-installer/raw/${tag}/dist/${name}";
+        "https://github.com/nspin/minimally-invasive-nix-installer/raw/${tag}/dist/${fileName}";
   };
 
 in {

@@ -2,8 +2,6 @@
 
 set -Eeuo pipefail
 
-script_name=@script_name@
-
 log() {
     echo "$0:" "$@" >&2
 }

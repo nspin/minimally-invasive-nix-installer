@@ -2,8 +2,6 @@
 
 set -Eeuo pipefail
 
-script_name=@script_name@
-
 log() {
     echo "$0:" "$@" >&2
 }
@@ -26,12 +24,12 @@ require_util bash
 
 arch="$(uname -m)"
 
-script_name="install-${arch}-linux.sh"
-script_url="https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-69sdm5r2yf/dist/install-${arch}-linux.sh"
+script_name="install-min-nix-${arch}-linux.sh"
+script_url="https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-62j2x1q9zy/dist/install-min-nix-${arch}-linux.sh"
 
 case "$arch" in
-    aarch64) script_sha256=182bdd77fe78ae78319bdb4793e20faddccd108500b558335eca40132cae67ce ;;
-    x86_64) script_sha256=950fe448b4d697d80e52b946080abb4f63d2c3208c31aed95cc3b74a46215a35 ;;
+    aarch64) script_sha256=919f6b0d762f9ca3bd6067a2cca3758649558a35181a196e5733ffaa6d75415f ;;
+    x86_64) script_sha256=f111196d63ce84491faf964f4ca338ae6f41145599c2f79cba0403c0272751aa ;;
 
     *)
         echo >&2 "unsupported architecture: '$arch'"
