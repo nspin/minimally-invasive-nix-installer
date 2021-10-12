@@ -39,7 +39,7 @@ case "$arch" in
         ;;
 esac
 
-script_path="${TMPDIR:-/tmp}/$script_name-$(date +%s).tar.gz"
+script_path="${TMPDIR:-/tmp}/$(date +%s)-$script_name"
 log "Fetching '$script_url' to '$script_path'..."
 trap "{ rm -f $script_path; }" EXIT
 curl -fL -o "$script_path" "$script_url"
