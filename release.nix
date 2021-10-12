@@ -85,7 +85,9 @@ let
       byPlatform = lib.flip lib.mapAttrs platforms (_: thesePkgs: mkInstaller { inherit thesePkgs mkUrl; });
 
       representativeContent = writeText "representative-content"
-        (toString (lib.mapAttrsToList (_: installer: installer.scriptTemplate) byPlatform));
+        (toString ((lib.mapAttrsToList (_: installer: installer.scriptTemplate) byPlatform) ++ [
+          ./install.sh.in
+        ]));
 
       representativeHash = lib.substring 0 10
         (lib.removePrefix "${builtins.storeDir}/" representativeContent.outPath);

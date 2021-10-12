@@ -27,11 +27,11 @@ require_util bash
 arch="$(uname -m)"
 
 script_name="install-${arch}-linux.sh"
-script_url="https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-fbfgaw5wkw/dist/install-${arch}-linux.sh"
+script_url="https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-69sdm5r2yf/dist/install-${arch}-linux.sh"
 
 case "$arch" in
-    aarch64) script_sha256=d2e91e4d0ff05aa50b6806e9166450da893d2f22918af39394e365f8bdc9bb5f ;;
-    x86_64) script_sha256=baf2761b9c7b2a7c42bb90c1d29bff3ea42a86c0f61385b2a8a6bb23ce2e5693 ;;
+    aarch64) script_sha256=182bdd77fe78ae78319bdb4793e20faddccd108500b558335eca40132cae67ce ;;
+    x86_64) script_sha256=950fe448b4d697d80e52b946080abb4f63d2c3208c31aed95cc3b74a46215a35 ;;
 
     *)
         echo >&2 "unsupported architecture: '$arch'"

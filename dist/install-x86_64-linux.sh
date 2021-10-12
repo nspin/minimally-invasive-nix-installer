@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 dest=/nix
-tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-fbfgaw5wkw/dist/min-nix-2.4pre20210802_47e96bb-x86_64-linux.tar.gz
+tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-69sdm5r2yf/dist/min-nix-2.4pre20210802_47e96bb-x86_64-linux.tar.gz
 tarball_sha256=007d74de69d5a9e4ff21849cc622e04707faa56852350a2e33bc7fd66e5df6eb
 archive_name=min-nix-2.4pre20210802_47e96bb-x86_64-linux
 env_store_path=/nix/store/2gry0arwxxfa5vx86cc6kbn1ci4pwg03-min-nix-env-2.4pre20210802_47e96bb
