@@ -12,7 +12,9 @@ let
         sha256sum ${path} | cut -d ' ' -f 1 > $out
       '';
 
-  mkScriptName = system: "install-min-nix-${system}.sh";
+  scriptNamePrefix = "install-min-nix";
+
+  mkScriptName = system: "${scriptNamePrefix}-${system}.sh";
 
   mkInstaller = { thesePkgs, mkUrl }:
 
@@ -92,7 +94,7 @@ let
       representativeHash = lib.substring 0 10
         (lib.removePrefix "${builtins.storeDir}/" representativeContent.outPath);
 
-      metaScriptName = "install-min-nix.sh";
+      metaScriptName = "${scriptNamePrefix}.sh";
 
       scriptNameExpression = mkScriptName "\${arch}-linux";
       scriptUrlExpression = mkUrl scriptNameExpression;
@@ -114,11 +116,32 @@ let
 
       metaScriptSha256 = sha256 metaScriptName metaScript;
 
+      fragmentName = "${scriptNamePrefix}.fragment.sh";
+
+      fragmentTemplate = pkgs.writeText "${fragmentName}.in" ''
+        set -e
+
+        script_name="${metaScriptName}"
+        script_url="${mkUrl metaScriptName}"
+        script_sha256="@script_sha256@"
+
+        curl -fL "$script_url" -o "$script_name"
+        echo "$script_sha256 $script_name" | sha256sum -c -
+        bash "$script_name"
+        rm "$script_name"
+      '';
+
+      fragment = pkgs.runCommand fragmentName {} ''
+        substitute ${fragmentTemplate} $out \
+          --subst-var-by script_sha256 "$(cat ${metaScriptSha256})"
+      '';
+
     in {
       inherit byPlatform representativeHash;
       
       links = linkFarm "links" ([
         { name = "VERSION"; path = writeText "VERSION" representativeHash; }
+        { name = fragmentName; path = fragment; }
         { name = metaScriptName; path = metaScript; }
         { name = metaScriptSha256.fileName; path = metaScriptSha256; }
       ] ++ lib.concatLists (lib.flip lib.mapAttrsToList byPlatform (_: installer: with installer; [
