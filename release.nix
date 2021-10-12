@@ -39,7 +39,7 @@ let
       tarballUrl = mkTarballUrl tarballName;
 
       scriptTemplate = runCommand scriptName {} ''
-        substitute ${./install.sh.in} $out \
+        substitute ${./install-system.sh.in} $out \
           --subst-var-by tarball_sha256 "$(sha256sum ${tarball} | cut -d ' ' -f 1)" \
           --subst-var-by archive_name ${archiveName} \
           --subst-var-by env_store_path ${env}
