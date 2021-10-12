@@ -1,7 +1,6 @@
 set -e
 
-arch=$(uname -m)
-url=http://localhost:8000/install-$arch-linux.sh
+url=http://localhost:8000/install.sh
 
 (cd /www && python3 -m http.server --bind localhost) &
 sleep 3

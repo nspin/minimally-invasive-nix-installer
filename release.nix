@@ -12,6 +12,8 @@ let
         sha256sum ${path} | cut -d ' ' -f 1 > $out
       '';
 
+  mkScriptName = system: "install-${system}.sh";
+
   mkInstaller = { thesePkgs, mkUrl }:
 
     let
@@ -57,7 +59,7 @@ let
           --subst-var-by env_store_path ${env}
       '';
 
-      scriptName = "install-${hostPlatform.system}.sh";
+      scriptName = mkScriptName hostPlatform.system;
 
       script = runCommand scriptName {} ''
         substitute ${scriptTemplate} $out \
@@ -88,17 +90,38 @@ let
       representativeHash = lib.substring 0 10
         (lib.removePrefix "${builtins.storeDir}/" representativeContent.outPath);
 
+      platformIndependentScriptName = "install.sh";
+
+      scriptNameExpression = mkScriptName "\${arch}-linux";
+      scriptUrlExpression = mkUrl scriptNameExpression;
+
+      caseArms =
+        let
+          indent = "    ";
+        in
+          lib.concatStringsSep indent (lib.flip lib.mapAttrsToList byPlatform (arch: installer: ''
+            ${arch}) script_sha256=$(cat ${installer.scriptSha256}) ;;
+          ''));
+
+      platformIndependentScript = pkgs.runCommand platformIndependentScriptName {} ''
+        substitute ${./install.sh.in} $out \
+          --subst-var-by script_name_expression '${scriptNameExpression}' \
+          --subst-var-by script_url_expression '${scriptUrlExpression}' \
+          --subst-var-by case_arms "${caseArms}"
+      '';
+
     in {
       inherit byPlatform representativeHash;
       
       links = linkFarm "links" ([
         { name = "VERSION"; path = writeText "VERSION" representativeHash; }
-      ] ++ lib.concatLists ((lib.flip lib.mapAttrsToList byPlatform (_: installer: with installer; [
+        { name = platformIndependentScriptName; path = platformIndependentScript; }
+      ] ++ lib.concatLists (lib.flip lib.mapAttrsToList byPlatform (_: installer: with installer; [
         { name = scriptName; path = script; }
         { name = scriptSha256.fileName; path = scriptSha256; }
         { name = tarballName; path = tarball; }
         { name = tarballSha256.fileName; path = tarballSha256; }
-      ]))));
+      ])));
     };
 
   installers = mkInstallers {

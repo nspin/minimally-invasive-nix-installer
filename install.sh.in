@@ -1,0 +1,53 @@
+{ # Prevent execution if this script was only partially downloaded
+
+set -Eeuo pipefail
+
+script_name=@script_name@
+
+log() {
+    echo "$0:" "$@" >&2
+}
+
+die() {
+    log "FAILURE: $1"
+    exit 1
+}
+
+require_util() {
+    type "$1" > /dev/null 2>&1 || command -v "$1" > /dev/null 2>&1 || \
+        die "This script requires '$1', which could not be found."
+}
+
+require_util date
+require_util curl
+require_util sha256sum
+require_util uname
+require_util bash
+
+arch="$(uname -m)"
+
+script_name="@script_name_expression@"
+script_url="@script_url_expression@"
+
+case "$arch" in
+    @case_arms@
+    *)
+        echo >&2 "unsupported architecture: '$arch'"
+        exit 1
+        ;;
+esac
+
+script_path="${TMPDIR:-/tmp}/$script_name-$(date +%s).tar.gz"
+log "Fetching '$script_url' to '$script_path'..."
+trap "{ rm -f $script_path; }" EXIT
+curl -fL -o "$script_path" "$script_url"
+
+log "Verifying the integrity of '$script_path'..."
+observed_sha256="$(sha256sum "$script_path" | cut -c 1-64)"
+if [ "$script_sha256" != "$observed_sha256" ]; then
+    die "SHA-256 hash mismatch for '$script_path': expected $script_sha256, got $observed_sha256."
+fi
+
+bash $script_path
+
+}

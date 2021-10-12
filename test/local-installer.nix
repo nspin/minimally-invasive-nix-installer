@@ -3,7 +3,7 @@ let
   release = import ../release.nix;
 
   installers = release.mkInstallers {
-    mkTarballUrl = tarballName: "http://localhost:8000/${tarballName}";
+    mkUrl = fileName: "http://localhost:8000/${fileName}";
   };
 
 in {
