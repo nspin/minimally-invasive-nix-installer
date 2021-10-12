@@ -2,10 +2,20 @@ assert builtins.storeDir == "/nix/store";
 
 let
 
-  mkInstaller = { pkgs, mkTarballUrl }:
+  sha256 = name: path:
+    let
+      sha256Name = "${name}.sha256.txt";
+    in
+      pkgs.runCommand sha256Name {
+        passthru.fileName = sha256Name;
+      } ''
+        sha256sum ${path} | cut -d ' ' -f 1 > $out
+      '';
+
+  mkInstaller = { thesePkgs, mkUrl }:
 
     let
-      inherit (pkgs) hostPlatform nixUnstable cacert buildEnv runCommand;
+      inherit (thesePkgs) hostPlatform nixUnstable cacert buildEnv runCommand;
 
     in rec {
 
@@ -16,7 +26,7 @@ let
         paths = [ nix cacert ];
       };
 
-      closure = pkgs.closureInfo { rootPaths = [ env ]; };
+      closure = thesePkgs.closureInfo { rootPaths = [ env ]; };
 
       archiveName = "min-nix-${nix.version}-${hostPlatform.system}";
 
@@ -36,11 +46,13 @@ let
 
       tarballName = "${archiveName}.tar.gz";
 
-      tarballUrl = mkTarballUrl tarballName;
+      tarballUrl = mkUrl tarballName;
+
+      tarballSha256 = sha256 tarballName tarball;
 
       scriptTemplate = runCommand scriptName {} ''
         substitute ${./install-system.sh.in} $out \
-          --subst-var-by tarball_sha256 "$(sha256sum ${tarball} | cut -d ' ' -f 1)" \
+          --subst-var-by tarball_sha256 "$(cat ${tarballSha256})" \
           --subst-var-by archive_name ${archiveName} \
           --subst-var-by env_store_path ${env}
       '';
@@ -52,17 +64,9 @@ let
           --subst-var-by tarball_url ${tarballUrl}
       '';
 
-      scriptSha256Name = "${scriptName}.sha256.txt";
-
-      scriptSha256 = runCommand scriptSha256Name {} ''
-        sha256sum ${script} | cut -d ' ' -f 1 > $out
-      '';
+      scriptSha256 = sha256 scriptName script;
 
     };
-
-in
-
-let
 
   pkgs = import ./nixpkgs {};
 
@@ -74,9 +78,9 @@ let
     ${pkgs.hostPlatform.parsed.cpu.name} = pkgs;
   };
 
-  mkInstallers = { mkTarballUrl }:
+  mkInstallers = { mkUrl }:
     let
-      byPlatform = lib.flip lib.mapAttrs platforms (_: pkgs: mkInstaller { inherit pkgs mkTarballUrl; });
+      byPlatform = lib.flip lib.mapAttrs platforms (_: thesePkgs: mkInstaller { inherit thesePkgs mkUrl; });
 
       representativeContent = writeText "representative-content"
         (toString (lib.mapAttrsToList (_: installer: installer.scriptTemplate) byPlatform));
@@ -91,17 +95,18 @@ let
         { name = "VERSION"; path = writeText "VERSION" representativeHash; }
       ] ++ lib.concatLists ((lib.flip lib.mapAttrsToList byPlatform (_: installer: with installer; [
         { name = scriptName; path = script; }
-        { name = scriptSha256Name; path = scriptSha256; }
+        { name = scriptSha256.fileName; path = scriptSha256; }
         { name = tarballName; path = tarball; }
+        { name = tarballSha256.fileName; path = tarballSha256; }
       ]))));
     };
 
   installers = mkInstallers {
-    mkTarballUrl = tarballName:
+    mkUrl = name:
       let
         tag = "dist-${installers.representativeHash}";
       in
-        "https://github.com/nspin/minimally-invasive-nix-installer/raw/${tag}/dist/${tarballName}";
+        "https://github.com/nspin/minimally-invasive-nix-installer/raw/${tag}/dist/${name}";
   };
 
 in {
