@@ -1,6 +1,27 @@
 assert builtins.storeDir == "/nix/store";
 
 let
+  pkgs = import ./nixpkgs {
+    overlays = [
+      (self: super: {
+        nixUnstable = super.nixUnstable.overrideAttrs (attrs: {
+          postPatch = ''
+            ${attrs.postPatch or ""}
+
+            substituteInPlace src/libfetchers/git.cc \
+              --replace \
+                "Activity act(*logger, lvlTalkative, actUnknown, fmt(\"fetching Git repository '%s'\", actualUrl));" \
+                "Activity act(*logger, lvlNotice,    actUnknown, fmt(\"fetching Git repository '%s'\", actualUrl));"
+          '';
+        });
+      })
+    ];
+  };
+
+in
+let
+
+  inherit (pkgs) lib writeText linkFarm;
 
   sha256 = name: path:
     let
@@ -71,10 +92,6 @@ let
       scriptSha256 = sha256 scriptName script;
 
     };
-
-  pkgs = import ./nixpkgs {};
-
-  inherit (pkgs) lib writeText linkFarm;
 
   platforms = {
     aarch64 = pkgs.pkgsCross.aarch64-multiplatform;
