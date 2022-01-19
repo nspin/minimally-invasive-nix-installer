@@ -25,11 +25,11 @@ require_util bash
 arch="$(uname -m)"
 
 script_name="install-min-nix-${arch}-linux.sh"
-script_url="https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-y64jgzkzg5/dist/install-min-nix-${arch}-linux.sh"
+script_url="https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-h6yr5xax7m/dist/install-min-nix-${arch}-linux.sh"
 
 case "$arch" in
-    aarch64) script_sha256=16502703601d784b5830c8994c953ba83761fc7cba61ed3294a636a830e738a8 ;;
-    x86_64) script_sha256=afb6fa2641763cba6ae2d35a309c34ef1dc382b6b0aaf6486cd0aa494e6acf62 ;;
+    aarch64) script_sha256=9f97243004f42baa8988bedb3ed3ead75640684d2485a9a01a1106e07242b627 ;;
+    x86_64) script_sha256=dd44c01d3844f1e6dc343e2e4cc11db6aac7886301daed295822e080dbfb7dcd ;;
 
     *) die "unsupported architecture: '$arch'" ;;
 esac

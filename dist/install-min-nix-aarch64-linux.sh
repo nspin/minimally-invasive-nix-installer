@@ -42,10 +42,10 @@ require_util curl
 require_util sha256sum
 require_util tar
 
-tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-y64jgzkzg5/dist/min-nix-2.5pre20211007_844dd90-aarch64-linux.tar.gz
-tarball_sha256=8fe9c19669faf569d7119c445fcadf97b802f5cbbc4fbfce06670ee08714de20
-archive_name=min-nix-2.5pre20211007_844dd90-aarch64-linux
-env_store_path=/nix/store/3vrk43n2xnsd33lhy2vxn1p1c82akm4k-min-nix-env-2.5pre20211007_844dd90
+tarball_url=https://github.com/nspin/minimally-invasive-nix-installer/raw/dist-h6yr5xax7m/dist/min-nix-2.5.1-aarch64-linux.tar.gz
+tarball_sha256=abdf8438d90430aad9e0a1cfd8c3227a2c0d6ed643819b525514835ec0aa629a
+archive_name=min-nix-2.5.1-aarch64-linux
+env_store_path=/nix/store/3w23bwz7dhbn9sazdlcr7zizsgyjsz8h-min-nix-env-2.5.1
 
 dest=/nix
 
