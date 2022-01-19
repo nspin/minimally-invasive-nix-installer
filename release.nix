@@ -4,7 +4,7 @@ let
   pkgs = import ./nixpkgs {
     overlays = [
       (self: super: {
-        nixUnstable = super.nixUnstable.overrideAttrs (attrs: {
+        nixStable = super.nixStable.overrideAttrs (attrs: {
           postPatch = ''
             ${attrs.postPatch or ""}
 
@@ -40,11 +40,11 @@ let
   mkInstaller = { thesePkgs, mkUrl }:
 
     let
-      inherit (thesePkgs) hostPlatform nixUnstable cacert buildEnv runCommand;
+      inherit (thesePkgs) hostPlatform nixStable cacert buildEnv runCommand;
 
     in rec {
 
-      nix = nixUnstable;
+      nix = nixStable;
 
       env = buildEnv {
         name = "min-nix-env-${nix.version}";
